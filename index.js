@@ -1,7 +1,7 @@
 const http = require("http");
 const path = require("path");
 const fs = require("fs");
-
+const { readdirSync } = require('fs');
 const express = require("express");
 
 const app = express();
@@ -23,9 +23,12 @@ app.use(
   "/icons",
   express.static(path.join(__dirname, "node_modules/bootstrap-icons/font/"))
 );
-app.use('/jquery', express.static(__dirname + '/node_modules/jquery/dist/'));
-app.use('/popper', express.static(__dirname + '/node_modules/popper'));
-app.use('/bootstrap', express.static(__dirname + '/node_modules/bootstrap/dist/js'));
+app.use("/jquery", express.static(__dirname + "/node_modules/jquery/dist/"));
+app.use("/popper", express.static(__dirname + "/node_modules/popper"));
+app.use(
+  "/bootstrap",
+  express.static(__dirname + "/node_modules/bootstrap/dist/js")
+);
 
 const mustache = require("mustache-express");
 app.engine("mustache", mustache());
@@ -51,7 +54,7 @@ app.post(
     const tempPath = req.file.path;
     const filename = req.file.originalname;
     const targetPath = path.join(__dirname, "./public/images/" + filename);
-    if (path.extname(req.file.originalname).toLowerCase() === ".png") {
+    if (path.extname(req.file.originalname).toLowerCase() === ".jpg") {
       fs.rename(tempPath, targetPath, (err) => {
         if (err) return handleError(err, res);
         res.status(200).render("layout", {
@@ -64,11 +67,23 @@ app.post(
         res
           .status(403)
           .contentType("text/plain")
-          .end("Only .png files are allowed!");
+          .end("Only .jpg files are allowed!");
       });
     }
   }
 );
+
+const imageDirPath = path.join(__dirname, "./public/images");
+let files = readdirSync(imageDirPath);
+
+showImages = function (req, res) {
+  let files = readdirSync(imageDirPath);
+  res.render("images", {
+    images: files,
+  });
+};
+
+app.get("/images", showImages);
 
 app.use(function (req, res) {
   res.status(404);
