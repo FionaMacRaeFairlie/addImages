@@ -1,15 +1,13 @@
-const http = require("http");
 const path = require("path");
 const fs = require("fs");
 const { readdirSync } = require('fs');
 const express = require("express");
 
 const app = express();
-const httpServer = http.createServer(app);
 
 const PORT = process.env.PORT || 3000;
 
-httpServer.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
 });
 
@@ -44,7 +42,7 @@ const handleError = (err, res) => {
 
 const upload = multer({
   dest: path.join(__dirname, "./temp"),
-  // you might also want to set some limits: https://github.com/expressjs/multer#limits
+  // you might also want to set some limits to help avoid DoS attacks: https://github.com/expressjs/multer#limits
 });
 
 app.post(
@@ -74,7 +72,6 @@ app.post(
 );
 
 const imageDirPath = path.join(__dirname, "./public/images");
-let files = readdirSync(imageDirPath);
 
 showImages = function (req, res) {
   let files = readdirSync(imageDirPath);
